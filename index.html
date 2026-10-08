@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PetPulse | Discover Dog Breeds</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #fff8f2;
+            color: #2d241f;
+        }
+
+        /* HEADER */
+
+        header {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: white;
+            padding: 28px 7%;
+        }
+
+        .header {
+            max-width: 1200px;
+            margin: auto;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 32px;
+        }
+
+        .tagline {
+            margin-top: 6px;
+            opacity: 0.9;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.18);
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        /* CONTROLS */
+
+        .controls {
+            max-width: 1200px;
+            margin: 30px auto 20px;
+            padding: 0 20px;
+
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        input,
+        select {
+            padding: 14px 16px;
+
+            border: 1px solid #ddd;
+            border-radius: 12px;
+
+            background: white;
+            font-size: 15px;
+
+            outline: none;
+        }
+
+        input {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        select {
+            min-width: 190px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #7c3aed;
+        }
+
+        /* MAIN */
+
+        main {
+            max-width: 1200px;
+            margin: auto;
+
+            padding: 0 20px 55px;
+        }
+
+        .status {
+            margin: 15px 0 20px;
+
+            color: #756b65;
+        }
+
+        /* CARDS */
+
+        .grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+
+            border-radius: 18px;
+            overflow: hidden;
+
+            box-shadow:
+                0 8px 25px rgba(60, 40, 30, 0.09);
+
+            transition: 0.25s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+
+            box-shadow:
+                0 12px 30px rgba(60, 40, 30, 0.14);
+        }
+
+        .card img {
+            width: 100%;
+            height: 230px;
+
+            object-fit: cover;
+
+            background: #eee;
+        }
+
+        .content {
+            padding: 18px;
+        }
+
+        .content h2 {
+            font-size: 21px;
+
+            margin-bottom: 8px;
+        }
+
+        .origin {
+            display: inline-block;
+
+            background: #f3e8ff;
+            color: #6d28d9;
+
+            border-radius: 20px;
+
+            padding: 5px 9px;
+
+            font-size: 12px;
+
+            margin-bottom: 10px;
+        }
+
+        .details {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 8px;
+
+            margin: 15px 0;
+
+            color: #5f5752;
+
+            font-size: 14px;
+        }
+
+        .temperament {
+            font-size: 14px;
+
+            line-height: 1.5;
+
+            color: #6b625d;
+        }
+
+        /* EMPTY / ERROR */
+
+        .empty {
+            grid-column: 1 / -1;
+
+            background: white;
+
+            border-radius: 16px;
+
+            text-align: center;
+
+            padding: 50px;
+
+            color: #777;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #2d2430;
+
+            color: #ddd;
+
+            text-align: center;
+
+            padding: 22px;
+        }
+
+        footer p {
+            margin: 5px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            input,
+            select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div class="header">
+
+            <div>
+
+                <h1>
+                    🐾 PetPulse
+                </h1>
+
+                <p class="tagline">
+                    Discover dog breeds using a free REST API
+                </p>
+
+            </div>
+
+
+            <div class="badge">
+
+                🔗 API Powered
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- SEARCH AND FILTER -->
+
+    <section class="controls">
+
+        <input
+            type="text"
+            id="search"
+            placeholder="🔎 Search a dog breed..."
+        >
+
+
+        <select id="originFilter">
+
+            <option value="all">
+                All Origins
+            </option>
+
+        </select>
+
+    </section>
+
+
+
+    <!-- MAIN CONTENT -->
+
+    <main>
+
+        <div
+            class="status"
+            id="status"
+        >
+            Loading dog breeds...
+        </div>
+
+
+        <div
+            class="grid"
+            id="grid"
+        >
+
+            <div class="empty">
+
+                🐶 Fetching breed data...
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <p>
+
+            <strong>
+                PetPulse
+            </strong>
+
+            © 2026
+
+        </p>
+
+        <p>
+            Breed data and images fetched from The Dog API
+        </p>
+
+    </footer>
+
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        /*
+        ============================================
+        PETPULSE - DOG BREED API PROJECT
+        ============================================
+
+        API:
+        https://api.thedogapi.com/v1/breeds
+
+        Technologies:
+        HTML5
+        CSS3
+        JavaScript
+        REST API
+
+        ============================================
+        */
+
+
+        // API URL
+
+        const API_URL =
+            "https://api.thedogapi.com/v1/breeds";
+
+
+        // Store API data
+
+        let breeds = [];
+
+
+        // HTML elements
+
+        const grid =
+            document.getElementById("grid");
+
+        const search =
+            document.getElementById("search");
+
+        const originFilter =
+            document.getElementById("originFilter");
+
+        const status =
+            document.getElementById("status");
+
+
+
+        // ==========================================
+        // FETCH DATA FROM API
+        // ==========================================
+
+        async function fetchBreeds() {
+
+            try {
+
+                status.textContent =
+                    "Connecting to Dog API...";
+
+
+                // Send request to API
+
+                const response =
+                    await fetch(API_URL);
+
+
+                // Check response
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "API request failed"
+                    );
+
+                }
+
+
+                // Convert response to JSON
+
+                breeds =
+                    await response.json();
+
+
+                // Create origin filter
+
+                createOrigins();
+
+
+                // Display breeds
+
+                displayBreeds(breeds);
+
+
+                // Update status
+
+                status.textContent =
+                    `${breeds.length} dog breeds loaded from API`;
+
+            }
+
+
+            catch (error) {
+
+                console.error(error);
+
+
+                status.textContent =
+                    "API connection failed";
+
+
+                grid.innerHTML = `
+
+                    <div class="empty">
+
+                        <h2>
+                            ⚠️ Unable to load breeds
+                        </h2>
+
+                        <p>
+                            Please check your internet connection
+                            and refresh the page.
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+
+        // ==========================================
+        // CREATE ORIGIN FILTER
+        // ==========================================
+
+        function createOrigins() {
+
+            const origins =
+                [
+                    ...new Set(
+
+                        breeds
+                            .map(
+                                breed => breed.origin
+                            )
+                            .filter(Boolean)
+
+                    )
+                ]
+                .sort();
+
+
+            origins.forEach(origin => {
+
+                const option =
+                    document.createElement("option");
+
+
+                option.value =
+                    origin;
+
+
+                option.textContent =
+                    origin;
+
+
+                originFilter.appendChild(
+                    option
+                );
+
+            });
+
+        }
+
+
+
+        // ==========================================
+        // DISPLAY BREEDS
+        // ==========================================
+
+        function displayBreeds(list) {
+
+            grid.innerHTML = "";
+
+
+            // No results
+
+            if (list.length === 0) {
+
+                grid.innerHTML = `
+
+                    <div class="empty">
+
+                        <h2>
+                            🐕 No breeds found
+                        </h2>
+
+                        <p>
+                            Try another breed name or origin.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            // Create cards
+
+            list.forEach(breed => {
+
+
+                // Dog image
+
+                const image =
+                    breed.image &&
+                    breed.image.url
+                        ? breed.image.url
+                        : "https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg";
+
+
+                // Origin
+
+                const origin =
+                    breed.origin ||
+                    "Not specified";
+
+
+                // Weight
+
+                const weight =
+                    breed.weight &&
+                    breed.weight.metric
+                        ? breed.weight.metric + " kg"
+                        : "Not available";
+
+
+                // Height
+
+                const height =
+                    breed.height &&
+                    breed.height.metric
+                        ? breed.height.metric + " cm"
+                        : "Not available";
+
+
+                // Life span
+
+                const life =
+                    breed.life_span ||
+                    "Not available";
+
+
+                // Temperament
+
+                const temperament =
+                    breed.temperament ||
+                    "Information not available.";
+
+
+                // Create card
+
+                const card =
+                    document.createElement("article");
+
+
+                card.className =
+                    "card";
+
+
+                card.innerHTML = `
+
+                    <img
+                        src="${image}"
+                        alt="${breed.name}"
+                        loading="lazy"
+                    >
+
+
+                    <div class="content">
+
+
+                        <span class="origin">
+
+                            🌍 ${origin}
+
+                        </span>
+
+
+                        <h2>
+
+                            ${breed.name}
+
+                        </h2>
+
+
+                        <div class="details">
+
+
+                            <span>
+
+                                📏 Height:
+                                ${height}
+
+                            </span>
+
+
+                            <span>
+
+                                ⚖️ Weight:
+                                ${weight}
+
+                            </span>
+
+
+                            <span>
+
+                                ❤️ Life:
+                                ${life}
+
+                            </span>
+
+
+                            <span>
+
+                                🐾 ID:
+                                ${breed.id}
+
+                            </span>
+
+
+                        </div>
+
+
+                        <p class="temperament">
+
+                            <strong>
+                                Temperament:
+                            </strong>
+
+                            ${temperament}
+
+                        </p>
+
+
+                    </div>
+
+                `;
+
+
+                grid.appendChild(card);
+
+            });
+
+        }
+
+
+
+        // ==========================================
+        // SEARCH AND FILTER
+        // ==========================================
+
+        function filterBreeds() {
+
+
+            const searchText =
+                search.value
+                    .toLowerCase()
+                    .trim();
+
+
+            const selectedOrigin =
+                originFilter.value;
+
+
+            const filtered =
+                breeds.filter(breed => {
+
+
+                    const matchesName =
+                        breed.name
+                            .toLowerCase()
+                            .includes(searchText);
+
+
+                    const matchesOrigin =
+                        selectedOrigin === "all" ||
+                        breed.origin === selectedOrigin;
+
+
+                    return (
+                        matchesName &&
+                        matchesOrigin
+                    );
+
+                });
+
+
+            // Display filtered data
+
+            displayBreeds(filtered);
+
+
+            // Update status
+
+            status.textContent =
+                `${filtered.length} breed${
+                    filtered.length === 1
+                        ? ""
+                        : "s"
+                } found`;
+
+        }
+
+
+
+        // ==========================================
+        // EVENTS
+        // ==========================================
+
+        search.addEventListener(
+            "input",
+            filterBreeds
+        );
+
+
+        originFilter.addEventListener(
+            "change",
+            filterBreeds
+        );
+
+
+
+        // ==========================================
+        // START APPLICATION
+        // ==========================================
+
+        fetchBreeds();
+
+    </script>
+
+</body>
+
+</html>
